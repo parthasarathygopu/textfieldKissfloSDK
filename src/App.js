@@ -1,23 +1,46 @@
-import logo from './logo.svg';
 import './App.css';
+import {useState, useEffect} from "react";
+
+import KFSDK from "@kissflow/lowcode-client-sdk";
+
 
 function App() {
+
+  const [inputValue, setInputValue] = useState("");
+
+   function handleChange(event) {
+    setInputValue(event.target.value);
+     kf.api("/case/2/Ac7TTbuOctN8/partha/PART-0001/Status_0001_New", {
+      method: "post",
+      body: JSON.stringify({_id:"PART-0001",Summary:event.target.value}),
+    });
+  }
+
+  const [kf, setKf] = useState();
+
+  useEffect(() => {
+    setTimeout(() => {
+      loadKfSdk();
+    }, 3000);
+  }, []);
+
+  async function loadKfSdk() {
+    let kf = await KFSDK.initialize();
+    window.kf = kf;
+    setKf(kf);
+    const previousValue = await kf.api("/case/2/Ac7TTbuOctN8/partha/PART-0001", {
+      method: "get",
+    });
+    setInputValue(previousValue.Summary);
+  }
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      {<input
+          type="text"
+          value={inputValue}
+          onChange={(event) => handleChange(event)}
+      />}
     </div>
   );
 }
